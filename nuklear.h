@@ -7801,52 +7801,56 @@ nk_file_load(const char* path, nk_size* siz, const struct nk_allocator *alloc)
 }
 #endif
 NK_LIB int
-nk_text_clamp(const struct nk_user_font *font, const char *text,
-    int text_len, float space, int *glyphs, float *text_width,
-    nk_rune *sep_list, int sep_count)
+nk_text_clamp(const struct nk_user_font* font, const char* text,
+    int text_len, float space, int* glyphs, float* text_width,
+    nk_rune* sep_list, int sep_count)
+
 {
     int i = 0;
     int glyph_len = 0;
-    float last_width = 0;
+
     nk_rune unicode = 0;
     float width = 0;
     int len = 0;
     int g = 0;
-    float s;
 
-    int sep_len = 0;
-    int sep_g = 0;
-    float sep_width = 0;
-    sep_count = NK_MAX(sep_count,0);
+    float ret_width = 0;
+    int ret_g = 0;
+    int ret_len = 0;
 
-    glyph_len = nk_utf_decode(text, &unicode, text_len);
-    while (glyph_len && (width < space) && (len < text_len)) {
-        len += glyph_len;
-        s = font->width(font->userdata, font->height, text, len);
-        for (i = 0; i < sep_count; ++i) {
-            if (unicode != sep_list[i]) continue;
-            sep_width = last_width = width;
-            sep_g = g+1;
-            sep_len = len;
-            break;
+    sep_count = NK_MAX(sep_count, 0);
+
+    while ((width < space) && (len < text_len)) {
+        if (!ret_g) {
+            ret_width = width;
+            ret_len = len;
         }
-        if (i == sep_count){
-            last_width = sep_width = width;
-            sep_g = g+1;
-        }
-        width = s;
+
         glyph_len = nk_utf_decode(&text[len], &unicode, text_len - len);
+        if (!glyph_len) break;
+
+        len += glyph_len;
+        width = font->width(font->userdata, font->height, text, len);
+
+        for (i = 0; i < sep_count; ++i) {
+            if (unicode == sep_list[i]) {
+                ret_len = len;
+                ret_g = g + 1;
+                break;
+            }
+        }
         g++;
     }
-    if (len >= text_len) {
-        *glyphs = g;
-        *text_width = last_width;
-        return len;
-    } else {
-        *glyphs = sep_g;
-        *text_width = sep_width;
-        return (!sep_len) ? len: sep_len;
-    }
+
+    if (width < space) {
+        ret_g = g;
+        ret_width = width;
+        ret_len = len;
+    } else if (!ret_g) ret_g = NK_MAX(g - 1, 0);
+
+    if (glyphs) *glyphs = ret_g;
+    if (text_width) *text_width = ret_width;
+    return ret_len;
 }
 NK_LIB struct nk_vec2
 nk_text_calculate_text_bounds(const struct nk_user_font *font,
@@ -9741,9 +9745,7 @@ nk_draw_text(struct nk_command_buffer *b, struct nk_rect r,
     /* make sure text fits inside bounds */
     text_width = font->width(font->userdata, font->height, string, length);
     if (text_width > r.w){
-        int glyphs = 0;
-        float txt_width = (float)text_width;
-        length = nk_text_clamp(font, string, length, r.w, &glyphs, &txt_width, 0,0);
+        length = nk_text_clamp(font, string, length, r.w, NULL, NULL, 0,0);
     }
 
     if (!length) return;
@@ -23842,8 +23844,6 @@ nk_widget_text_wrap(struct nk_command_buffer *o, struct nk_rect b,
     const char *string, int len, const struct nk_text *t,
     const struct nk_user_font *f)
 {
-    float width;
-    int glyphs = 0;
     int fitting = 0;
     int done = 0;
     struct nk_rect line;
@@ -23867,13 +23867,13 @@ nk_widget_text_wrap(struct nk_command_buffer *o, struct nk_rect b,
     line.w = b.w - 2 * t->padding.x;
     line.h = 2 * t->padding.y + f->height;
 
-    fitting = nk_text_clamp(f, string, len, line.w, &glyphs, &width, seperator,NK_LEN(seperator));
+    fitting = nk_text_clamp(f, string, len, line.w, NULL, NULL, seperator,NK_LEN(seperator));
     while (done < len) {
         if (!fitting || line.y + line.h >= (b.y + b.h)) break;
         nk_widget_text(o, line, &string[done], fitting, &text, NK_TEXT_LEFT, f);
         done += fitting;
         line.y += f->height + 2 * t->padding.y;
-        fitting = nk_text_clamp(f, &string[done], len - done, line.w, &glyphs, &width, seperator,NK_LEN(seperator));
+        fitting = nk_text_clamp(f, &string[done], len - done, line.w, NULL, NULL, seperator,NK_LEN(seperator));
     }
 }
 NK_API void
@@ -30721,7 +30721,7 @@ nk_tooltipfv(struct nk_context *ctx, const char *fmt, va_list args)
 /// - 2025/04/06 (4.12.7) - Fix text input navigation and mouse scrolling
 /// - 2025/03/29 (4.12.6) - Fix unitialized data in nk_input_char
 /// - 2025/03/05 (4.12.5) - Fix scrolling knob also scrolling parent window, remove dead code
-/// - 2024/12/11 (4.12.4) - Fix array subscript [0, 0] is outside array bounds of ‘char[1]’
+/// - 2024/12/11 (4.12.4) - Fix array subscript [0, 0] is outside array bounds of 'char[1]'
 /// - 2024/12/11 (4.12.3) - Fix border color for property widgets
 /// - 2024/11/20 (4.12.2) - Fix int/float type conversion warnings in `nk_roundf`
 /// - 2024/03/07 (4.12.1) - Fix bitwise operations warnings in C++20
