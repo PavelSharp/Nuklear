@@ -58,6 +58,7 @@ nk_widget_text_wrap(struct nk_command_buffer *o, struct nk_rect b,
 {
     int fitting = 0;
     int done = 0;
+    int substr_len = 0;
     struct nk_rect line;
     struct nk_text text;
     NK_INTERN nk_rune seperator[] = {' '};
@@ -82,11 +83,14 @@ nk_widget_text_wrap(struct nk_command_buffer *o, struct nk_rect b,
     fitting = nk_text_clamp(f, string, len, line.w, NULL, NULL, seperator,NK_LEN(seperator));
     while (done < len) {
         if (!fitting || line.y + line.h >= (b.y + b.h)) break;
-        nk_widget_text(o, line, &string[done], fitting, &text, NK_TEXT_LEFT, f);
+        substr_len = fitting - (string[done + fitting - 1] == '\n');
+        if (substr_len)
+            nk_widget_text(o, line, &string[done], substr_len, &text, NK_TEXT_LEFT, f);
         done += fitting;
-        line.y += f->height + 2 * t->padding.y;
+        line.y += line.h;
         fitting = nk_text_clamp(f, &string[done], len - done, line.w, NULL, NULL, seperator,NK_LEN(seperator));
     }
+    /* Note: if the line ended with '\n', we should manually advance line.y by line.h to account for the last empty line. */
 }
 NK_API void
 nk_text_colored(struct nk_context *ctx, const char *str, int len,

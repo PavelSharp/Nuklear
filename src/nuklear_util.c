@@ -1047,6 +1047,7 @@ nk_text_clamp(const struct nk_user_font* font, const char* text,
         if (!glyph_len) break;
 
         len += glyph_len;
+        if (unicode == '\n') {++g; break;}
         width = font->width(font->userdata, font->height, text, len);
 
         for (i = 0; i < sep_count; ++i) {
