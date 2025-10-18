@@ -8930,12 +8930,15 @@ nk_str_insert_at_rune(struct nk_str *str, int pos, const char *cstr, int len)
 NK_API int
 nk_str_insert_text_char(struct nk_str *str, int pos, const char *text, int len)
 {
-    return nk_str_insert_text_utf8(str, pos, text, len);
+    nk_str_insert_at_rune(str, pos, text, len);
+    /* TODO. Most likely, each of these functions(nk_str_insert_*, nk_str_append_*)
+     * should check the return value and return 0 in case of failure. */
+    return len;
 }
 NK_API int
 nk_str_insert_str_char(struct nk_str *str, int pos, const char *text)
 {
-    return nk_str_insert_text_utf8(str, pos, text, nk_strlen(text));
+    return nk_str_insert_text_char(str, pos, text, nk_strlen(text));
 }
 NK_API int
 nk_str_insert_text_utf8(struct nk_str *str, int pos, const char *text, int len)
@@ -30721,6 +30724,7 @@ nk_tooltipfv(struct nk_context *ctx, const char *fmt, va_list args)
 ///   - [y]: Minor version with non-breaking API and library changes
 ///   - [z]: Patch version with no direct changes to the API
 ///
+/// - 2025/10/18 (4.12.9) - Fix nk_str_insert_text_char and nk_str_insert_str_char, see #840
 /// - 2025/09/12 (4.12.8) - Fix nk_window_is_hovered to use current window flags
                           - Fix nk_utf_decode length check (allow len == NK_UTF_SIZE)
 /// - 2025/04/06 (4.12.7) - Fix text input navigation and mouse scrolling
