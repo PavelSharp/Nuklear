@@ -7,12 +7,18 @@ endif
 
 PKG_SDL3 ?= sdl3
 ifeq (,$(shell $(PKG_CONFIG) --path $(PKG_SDL3)))
-    $(error $(PKG_CONFIG) could not find: $(PKG_SDL3))
+    $(error $(PKG_CONFIG) could not find: $(PKG_SDL3) \
+        $(if $(EMSCRIPTEN), but you might be able to build it with: embuilder build $(PKG_SDL3) \
+        ))
 endif
 
-OS ?= $(shell uname -s)
+OSNAME ?= $(or $(and $(EMSCRIPTEN), Emscripten), \
+               $(shell uname -s 2> /dev/null), \
+               $(OS), \
+               $(error could not detect OS))
 BINEXT-Windows_NT = .exe
-BINEXT ?= $(BINEXIT-$(OS))
+BINEXT-Emscripten = .html
+BINEXT ?= $(BINEXT-$(OSNAME))
 
 TEMPDIR ?= ./bin
 BIN ?= $(TEMPDIR)/demo$(BINEXT)
@@ -22,10 +28,10 @@ CFLAGS += -O2
 #CFLAGS += -O0 -g
 #CFLAGS += -fsanitize=address
 #CFLAGS += -fsanitize=undefined
-CFLAGS += $(shell $(PKG_CONFIG) $(PKG_SDL3) --cflags)
+CFLAGS += $(shell "$(PKG_CONFIG)" "$(PKG_SDL3)" --cflags)
 
 LIBS += -lm
-LIBS += $(shell $(PKG_CONFIG) $(PKG_SDL3) --libs)
+LIBS += $(shell "$(PKG_CONFIG)" "$(PKG_SDL3)" --libs)
 
 DEP ?= $(BIN).d
 
@@ -38,4 +44,3 @@ $(BIN):
 $(BIN): $(SRC) ./Makefile ./nuklear_sdl3_renderer.h ./../../nuklear.h
 
 -include $(DEP)
-
