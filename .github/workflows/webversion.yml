@@ -1,0 +1,48 @@
+name: Web Version with Emscripten
+
+on: [push, pull_request, workflow_dispatch]
+
+jobs:
+  build-web:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Install system packages
+      run: |
+        sudo apt-get update -qq
+        sudo apt-get install -y \
+        python3 \
+        cmake \
+        make
+
+    - name: Setup Emscripten SDK
+      uses: mymindstorm/setup-emsdk@v14
+
+    - name: Verify Emscripten
+      run: |
+        emcc -v
+        emmake --version
+        
+    - name: Build SDL3 port for Emscripten
+      run: embuilder build sdl3
+
+    - name: Build sdl3_renderer web demo
+      working-directory: demo/sdl3_renderer
+      run: emmake make
+
+    - name: Prepare web output
+      run: |
+        mkdir -p site/web
+        cp -r demo/sdl3_renderer/bin/* site/web/
+
+    - name: Deploy web version to gh-pages
+      uses: peaceiris/actions-gh-pages@v4
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./site
+        enable_jekyll: false
+        allow_empty_commit: false
+        force_orphan: true
