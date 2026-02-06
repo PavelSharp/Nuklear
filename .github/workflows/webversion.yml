@@ -29,7 +29,7 @@ jobs:
 
     - name: Build sdl3_renderer web demo
       working-directory: demo/sdl3_renderer
-      run: emmake make
+      run: emmake make CFLAGS="-DINCLUDE_ALL"
 
     - name: Prepare web output
       run: |
