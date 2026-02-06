@@ -1,5 +1,7 @@
 # Nuklear
-![](https://cloud.githubusercontent.com/assets/8057201/11761525/ae06f0ca-a0c6-11e5-819d-5610b25f6ef4.gif)
+\htmlonly
+<iframe src="./web/minshell.html" width="800px" height="600px" style="border: 1px solid #ccc; border-radius: 4px;"></iframe>
+\endhtmlonly
 
 ## Contents
 1. About section
@@ -23,6 +25,7 @@
 8. Changelog section
 9. Gallery section
 10. Credits section
+11. Web Demo section
 
 ## About
 This is a minimal state immediate mode graphical user interface toolkit
@@ -33,6 +36,8 @@ library approach by using simple input state for input and draw
 commands describing primitive shapes as output. So instead of providing a
 layered library that tries to abstract over a number of platform and
 render backends it only focuses on the actual UI.
+
+**Try Nuklear in Browser** → [Web Demo](@ref web_demo)
 
 ## Highlights
 - Graphical user interface toolkit
@@ -215,3 +220,5 @@ nk_end(&ctx);
 
 ## API
 
+## Web Demo section
+**Try Nuklear in Browser** → [Web Demo](@ref web_demo)
