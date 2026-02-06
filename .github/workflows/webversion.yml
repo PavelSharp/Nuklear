@@ -22,9 +22,7 @@ jobs:
       uses: mymindstorm/setup-emsdk@v14
 
     - name: Verify Emscripten
-      run: |
-        emcc -v
-        emmake --version
+      run: emcc -v
         
     - name: Build SDL3 port for Emscripten
       run: embuilder build sdl3
