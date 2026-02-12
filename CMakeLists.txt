@@ -52,7 +52,7 @@ function(nk_add_executable tgt src)
 
     if (EMSCRIPTEN)
       set_target_properties(${tgt} PROPERTIES OUTPUT_NAME "index" SUFFIX ".html")
-      target_link_options(${tgt} PRIVATE "-sEXPORTED_RUNTIME_METHODS=ccall") #,FS
+      target_link_options(${tgt} PRIVATE "-sEXPORTED_RUNTIME_METHODS=ccall") #,FS  "--shell-file=${CMAKE_SOURCE_DIR}/shell.html"
     endif()
     if (NOT EMSCRIPTEN)
     add_custom_command(TARGET ${tgt} POST_BUILD
