@@ -303,7 +303,8 @@ SDL_AppEvent(void *appstate, SDL_Event* event)
              * Without this the UI and Font could appear too small or too big.
              * This is not handled by the demo in order to keep it simple,
              * but you may wish to re-bake the Font whenever this happens. */
-            SDL_Log("Unhandled scale event! Nuklear may appear blurry");
+            
+            SDL_Log("Unhandled scale event! Nuklear may appear blurry, %.4f", SDL_GetWindowDisplayScale(app->window));
             return SDL_APP_CONTINUE;
     }
 
