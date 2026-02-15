@@ -1,0 +1,38 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [ master, web-integration ]
+
+jobs:
+  build-docs:
+    uses: ./.github/workflows/docs.yml
+
+  build-webver:
+    uses: ./.github/workflows/webver.yml
+  
+  deploy-ghpages:
+    needs: [build-docs, build-webver]
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Download doc artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: doc
+        path: .
+
+    - name: Download web artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: web
+        path: .
+
+    - name: Deploy to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v4
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: .
+        enable_jekyll: false
+        allow_empty_commit: false
+        force_orphan: true
