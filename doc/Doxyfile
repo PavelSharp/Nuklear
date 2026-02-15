@@ -908,7 +908,7 @@ WARN_LOGFILE           =
 
 INPUT                  =    "./src" \
                             "./src/HEADER.md" \
-                            "./webversion/doxywebpage.md"
+                            "./webver/doxywebpage.md"
 
 
 

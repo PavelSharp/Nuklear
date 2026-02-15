@@ -1,6 +1,6 @@
 # Nuklear
 \htmlonly
-<iframe src="./web/minshell.html" width="800px" height="600px" style="border: 1px solid #ccc; border-radius: 4px;"></iframe>
+<iframe src="./webver/minshell.html" width="800px" height="600px" style="border: 1px solid #ccc; border-radius: 4px;"></iframe>
 \endhtmlonly
 
 ## Contents
@@ -37,7 +37,7 @@ commands describing primitive shapes as output. So instead of providing a
 layered library that tries to abstract over a number of platform and
 render backends it only focuses on the actual UI.
 
-**Try Nuklear in Browser** → [Web Demo](@ref web_demo)
+<a href="webver/index.html" target="_blank">Try Nuklear in Browser</a>
 
 ## Highlights
 - Graphical user interface toolkit
@@ -221,4 +221,4 @@ nk_end(&ctx);
 ## API
 
 ## Web Demo section
-**Try Nuklear in Browser** → [Web Demo](@ref web_demo)
+[Try Nuklear in Browser](@ref web_demo)
