@@ -3,6 +3,24 @@ name: Web Version with Emscripten
 on: [push, pull_request, workflow_dispatch]
 
 jobs:
+
+  build-documentation:
+    runs-on: ubuntu-latest
+    steps:
+    - name: checkout
+      uses: actions/checkout@v4
+    - name: apt-update
+      run: sudo apt-get update -qq
+    - name: apt-get doxygen
+      run: sudo apt-get install -y doxygen
+    - name: build doc
+      run: make docs
+    - name: Upload docs artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: doc
+        path: doc/html
+
   build-web:
     runs-on: ubuntu-latest
 
@@ -27,73 +45,39 @@ jobs:
     - name: Build SDL3 port for Emscripten
       run: embuilder build sdl3
 
-    - name: Build sdl3_renderer web demo
-      working-directory: demo/sdl3_renderer
-      run: emmake make CFLAGS="-DINCLUDE_ALL -sEXPORTED_RUNTIME_METHODS=requestFullscreen" BIN="./bin/demo_sdl3_renderer.js"
-      #Possible choice: ccall,cwrap,requestFullscreen,FS,GL
-    - name: Prepare web output
-      run: |
-        mkdir -p site/web
-        cp -r demo/sdl3_renderer/bin/* site/web/
-        cp -r webversion/* site/web/
+    - name: Build web demo
+      #working-directory: demo/sdl3_renderer
+      run: make webver
 
     - name: Upload webversion artifact
       uses: actions/upload-artifact@v4
       with:
         name: web
-        path: site/web
+        path: doc/html
 
-  build-documentation:
-    runs-on: ubuntu-latest
-    steps:
-    - name: checkout
-      uses: actions/checkout@v4
-    - name: apt-update
-      run: sudo apt-get update -qq
-    - name: apt-get doxygen
-      run: sudo apt-get install -y doxygen
-    - name: build doc
-      run: make docs
-    - name: Prepare docs output
-      run: |
-        mkdir -p site
-        cp -r doc/html/* site/
-    - name: Upload docs artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: docs
-        path: site
 
   deploy:
-    needs: [build-web, build-documentation]
+    needs: [build-documentation, build-web]
     runs-on: ubuntu-latest
     steps:
+
+    - name: Download doc artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: doc
+        path: .
+
     - name: Download web artifact
       uses: actions/download-artifact@v4
       with:
         name: web
-        path: site/web
-
-    - name: Download docs artifact
-      uses: actions/download-artifact@v4
-      with:
-        name: docs
-        path: site
+        path: .
 
     - name: Deploy to GitHub Pages
       uses: peaceiris/actions-gh-pages@v4
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./site
+        publish_dir: .
         enable_jekyll: false
         allow_empty_commit: false
         force_orphan: true
-
-    # - name: Deploy to GitHub Pages
-    #   uses: peaceiris/actions-gh-pages@v4
-    #   with:
-    #     github_token: ${{ secrets.GITHUB_TOKEN }}
-    #     publish_dir: ./site
-    #     enable_jekyll: false
-    #     allow_empty_commit: false
-    #     force_orphan: true
