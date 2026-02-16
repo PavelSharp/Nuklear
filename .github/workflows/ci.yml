@@ -1,0 +1,55 @@
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  varsdef:
+    runs-on: ubuntu-latest
+    name: Vars def
+    steps:
+    - run: exit 0
+    outputs:
+      publish: ${{ github.event_name == 'push' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/feat/webver-old_and_full')}}
+  
+  check-backends:
+    name: Check backends
+    uses: ./.github/workflows/ccpp.yml
+    
+  check-docs:
+    name: Check documentation
+    needs: [varsdef]
+    uses: ./.github/workflows/docs.yml
+    with:
+      publish: ${{ needs.varsdef.outputs.publish == 'true'}}
+
+  check-webver:
+    name: Check web-version
+    needs: [varsdef]
+    uses: ./.github/workflows/webver.yml
+    with:
+      publish: ${{ needs.varsdef.outputs.publish == 'true' }}
+
+  deploy-ghpages:
+    name: Deploy to GitHub Pages
+    needs: [varsdef, check-docs, check-webver]
+    if: ${{ needs.varsdef.outputs.publish == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+    - name: Download doc artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: doc
+        path: .
+    - name: Download web artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: web
+        path: .
+    - name: Deploy to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v4
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: .
+        enable_jekyll: false
+        allow_empty_commit: false
+        force_orphan: true
