@@ -5,14 +5,13 @@ on:
     branches: [ master, web-integration ]
 
 jobs:
-  build-docs:
-    uses: ./.github/workflows/docs.yml
-
-  build-webver:
-    uses: ./.github/workflows/webver.yml
+  build-checkers:
+    uses: ./.github/workflows/checkers.yml
+    with:
+      publish: true
   
   deploy-ghpages:
-    needs: [build-docs, build-webver]
+    needs: [build-checkers]
     runs-on: ubuntu-latest
 
     steps:

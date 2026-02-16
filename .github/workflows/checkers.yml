@@ -1,0 +1,29 @@
+name: Pre-merge checkers
+
+on:
+  pull_request:
+  workflow_call:
+    inputs:
+      publish:
+        type: boolean
+        required: false
+        default: false
+
+jobs:
+  check-backends:
+    name: Check backends
+    uses: ./.github/workflows/ccpp.yml
+    with:
+      publish: ${{ inputs.publish || false }}
+    
+  check-docs:
+    name: Check documentation
+    uses: ./.github/workflows/docs.yml
+    with:
+      publish: ${{ inputs.publish || false }}
+
+  check-webver:
+    name: Check web version
+    uses: ./.github/workflows/webver.yml
+    with:
+      publish: ${{ inputs.publish || false }}
