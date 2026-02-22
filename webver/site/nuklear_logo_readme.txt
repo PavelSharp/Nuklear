@@ -1,1 +1,0 @@
-Logo was suggested by Rafał Jopek and was publeshed here: https://github.com/Immediate-Mode-UI/Nuklear/issues/401#issuecomment-2066737874

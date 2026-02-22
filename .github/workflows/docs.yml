@@ -15,7 +15,7 @@ jobs:
         sudo apt-get install -y doxygen
     - name: build doc
       run: make docs
-      #Web-version
+      #Webversion
     - name: Install packages for webver
       run: |
         sudo apt-get update -qq
@@ -26,7 +26,7 @@ jobs:
       run: emcc -v
     - name: Build SDL3 port for Emscripten
       run: embuilder build sdl3
-    - name: Build web-version
+    - name: Build webversion
       run: make webver
       #Deploy to GitHub Pages
     - name: Deploy to GitHub Pages
